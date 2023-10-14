@@ -27,11 +27,13 @@ void RenderUI::DestroyimGUI() {
 	ImGui::DestroyContext();
 }
 
+RepoInitializationComponent* ri = RepoInitializationComponent::GetInstance();
+SearchBarComponent* sc = SearchBarComponent::GetInstance();
+OutputWindowComponent* owc = OutputWindowComponent::GetInstance();
 
 void RenderUI::DisplayUI(int currentWindowWidth, int currentWindowHeight) {
-	RepoInitializationComponent* ri = RepoInitializationComponent::GetInstance();
+	
 	ri->RepoInit(currentWindowWidth, currentWindowHeight);
-
-	SearchBarComponent* sc = SearchBarComponent::GetInstance();
 	sc->SearchUIComponent(currentWindowWidth, currentWindowHeight);
+	owc->OutputWindowUICompoent(currentWindowWidth, currentWindowHeight);
 }

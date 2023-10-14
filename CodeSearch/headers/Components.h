@@ -9,7 +9,34 @@
 
 #include "FileController.h"
 
-class SearchBarComponent {
+
+
+class ComponentManager {
+public:
+	void AppendTextToBuffer(ImGuiTextBuffer& outputBuffer, const char* text)
+	{
+		outputBuffer.append(text);
+		outputBuffer.append("\n");
+	}
+	void ClearOutputBuffer(ImGuiTextBuffer& outputBuffer) {
+		outputBuffer.clear();
+	}
+};
+
+class OutputWindowComponent:ComponentManager {
+public:
+	static OutputWindowComponent* GetInstance();
+	void UpdateOutputBuffer(ImGuiTextBuffer& obuff);
+	void OutputWindowUICompoent(int c_window_width, int c_window_height);
+	OutputWindowComponent(const OutputWindowComponent& obj) = delete;
+private:
+	ImGuiTextBuffer outputBuffer;
+	static OutputWindowComponent* owc;
+	OutputWindowComponent() {}
+};
+
+
+class SearchBarComponent:ComponentManager {
 public:
 	static SearchBarComponent* GetInstance();
 	void SearchUIComponent(int c_window_width, int c_window_height);
@@ -22,7 +49,7 @@ private:
 };
 
 
-class RepoInitializationComponent {
+class RepoInitializationComponent:ComponentManager {
 public:
 	static RepoInitializationComponent* GetInstance();
 	void RepoInit(int c_window_width, int c_window_height);

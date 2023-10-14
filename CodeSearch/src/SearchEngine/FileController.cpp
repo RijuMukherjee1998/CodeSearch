@@ -1,33 +1,15 @@
-#include "../../headers/FileController.h"
+#include "FileController.h"
 
-unsigned int FileController::FileCount(const std::filesystem::path& repo_path) {
-	int fileCount = 0;
-	std::cout << repo_path << std::endl;
-	if (repo_path.empty()) {
-		fileCount = 0;
-		std::cout << "No Such Dir Exist" << std::endl;
-		return 0;
-	}
-
-	for (const auto& entry : std::filesystem::directory_iterator(repo_path)) {
-		if (entry.is_directory()) {
-			fileCount += FileCount(entry.path());
-		}
-		else if (entry.is_regular_file()) {
-			++fileCount;
-		}
-	}
-	return fileCount;
-}
-
-unsigned int FileController::FileCount_Iterator(const std::filesystem::path& repo_path) {
+std::vector<std::string> FileController::FileCount_Iterator(const std::filesystem::path& repo_path, ImGuiTextBuffer& outBuffer) {
 	std::stack<std::filesystem::path> dir_stack;
+	std::vector<std::string> allFiles;
 	int fileCount = 0;
-	std::cout << repo_path << std::endl;
+	//std::cout << repo_path << std::endl;
+	ClearOutputBuffer(outBuffer);
 	if (repo_path.empty() || !std::filesystem::exists(repo_path)) {
 		fileCount = 0;
 		std::cout << "No Such Dir Exist" << std::endl;
-		return 0;
+		return allFiles;
 	}
 	dir_stack.push(repo_path);
 	
@@ -37,7 +19,6 @@ unsigned int FileController::FileCount_Iterator(const std::filesystem::path& rep
 		{
 			std::filesystem::path current_dir = dir_stack.top();
 			dir_stack.pop();
-			std::cout << current_dir << std::endl;
 			for (const auto& entry : std::filesystem::directory_iterator(current_dir)) {
 				if (entry.is_directory()) {
 					dir_stack.push(entry.path());
@@ -45,33 +26,20 @@ unsigned int FileController::FileCount_Iterator(const std::filesystem::path& rep
 				else if (entry.is_regular_file()) {
 					++fileCount;
 				}
+				if (!entry.path().empty()) {
+					std::string pstr = entry.path().generic_string();
+					allFiles.push_back(pstr);
+					const char* path = pstr.c_str();
+					AppendTextToBuffer(outBuffer, path);
+				}
 			}
 		}
 		catch (std::exception e) {
 			std::cerr << e.what() << std::endl;
+			AppendTextToBuffer(outBuffer, "Unable to Load into Dir.");
+			continue;
 		}
 	}
 
-	return fileCount;
+	return allFiles;
 }
-
-void FileController::TestPrint() {
-	std::cout << "Hello Thread" << std::endl;
-	std::this_thread::sleep_for(std::chrono::seconds(5));
-	std::cout << "Delay complete!" << std::endl;
-	std::cout << "End Thread" << std::endl;
-
-}
-
-/*void FileController::PrintPermission(std::filesystem::perms permissions) {
-	namespace fs = std::filesystem;
-	std::cout << "Owner Read: " << ((permissions & fs::perms::owner_read) != fs::perms::none) << std::endl;
-	std::cout << "Owner Write: " << ((permissions & fs::perms::owner_write) != fs::perms::none) << std::endl;
-	std::cout << "Owner Execute: " << ((permissions & fs::perms::owner_exec) != fs::perms::none) << std::endl;
-	std::cout << "Group Read: " << ((permissions & fs::perms::group_read) != fs::perms::none) << std::endl;
-	std::cout << "Group Write: " << ((permissions & fs::perms::group_write) != fs::perms::none) << std::endl;
-	std::cout << "Group Execute: " << ((permissions & fs::perms::group_exec) != fs::perms::none) << std::endl;
-	std::cout << "Others Read: " << ((permissions & fs::perms::others_read) != fs::perms::none) << std::endl;
-	std::cout << "Others Write: " << ((permissions & fs::perms::others_write) != fs::perms::none) << std::endl;
-	std::cout << "Others Execute: " << ((permissions & fs::perms::others_exec) != fs::perms::none) << std::endl;
-}*/
