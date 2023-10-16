@@ -1,10 +1,19 @@
 #include "Components.h" 
 
-void OutputWindowComponent::UpdateOutputBuffer(ImGuiTextBuffer& out_buff) {
-	if (!out_buff.empty()) {
-		outputBuffer.clear();
-		outputBuffer.append(out_buff.begin(), out_buff.end());
+void OutputWindowComponent::UpdateOutputBuffer(ImGuiTextBuffer* out_buff) {
+	try
+	{
+		if (out_buff != NULL && !out_buff->empty()) {
+			outputBuffer.clear();
+			std::cout << "OutBuff" << out_buff->size() <<std::endl;
+			outputBuffer.append(out_buff->begin(), out_buff->end());
+		}
 	}
+	catch (std::exception e)
+	{
+		std::cout << "Some Exception occured:: " << e.what() << std::endl;
+	}
+	
 }
 
 void OutputWindowComponent::OutputWindowUICompoent(int currentWindowWidth, int currentWindowHeight) {
@@ -58,7 +67,7 @@ SearchBarComponent* SearchBarComponent::GetInstance() {
 
 
 std::mutex rinit_mutex;
-static void Init(char* repo_path, ImGuiTextBuffer& out_buff, bool& done) {
+static void Init(char* repo_path, ImGuiTextBuffer* out_buff, bool& done) {
 
 	FileController fc;
 
@@ -66,7 +75,10 @@ static void Init(char* repo_path, ImGuiTextBuffer& out_buff, bool& done) {
 	
 	std::vector<std::string> allFiles = fc.FileCount_Iterator(repo_path,out_buff);
 	
-	std::cout << allFiles.size()<< std::endl;
+	std::vector<FileMetadata> filteredFiles = fc.FilterOutCodeFiles(&allFiles);
+
+	std::cout << "Total No of files = "<< allFiles.size() << std::endl;
+	std::cout << "Total No of Filtered Files = "<< filteredFiles.size() << std::endl;
 
 	done = true;
 }
@@ -75,7 +87,7 @@ static void Init(char* repo_path, ImGuiTextBuffer& out_buff, bool& done) {
 void RepoInitializationComponent::RepoInit(int currentWindowWidth, int currentWindowHeight) {
 	static bool start = false;
 	static bool done = false;
-	static ImGuiTextBuffer output_buff;
+	static ImGuiTextBuffer* output_buff = new ImGuiTextBuffer();
 	ImGui::Begin("Initialization", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
 	ImGui::SetWindowPos(ImVec2(0.0f, 0.0f), ImGuiCond_Always);
 	ImGui::SetWindowSize(ImVec2(currentWindowWidth / 1.0f, currentWindowHeight / 10.0f));
@@ -91,7 +103,7 @@ void RepoInitializationComponent::RepoInit(int currentWindowWidth, int currentWi
 		std::cout << "Initiating new thread" << std::endl;
 		std::thread(Init, repo_path, std::ref(output_buff), std::ref(done)).detach();
 	}
-	
+
 	owc->UpdateOutputBuffer(output_buff);
 
 	if (done == true) {

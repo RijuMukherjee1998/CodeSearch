@@ -162,6 +162,7 @@
     <ClInclude Include="HeaderFiles\UI\Components.h" />
     <ClInclude Include="HeaderFiles\UI\RenderUI.h" />
     <ClInclude Include="headers\Application.h" />
+    <ClInclude Include="headers\Extensions.h" />
     <ClInclude Include="headers\imgui\imconfig.h" />
     <ClInclude Include="headers\imgui\imgui.h" />
     <ClInclude Include="headers\imgui\imgui_impl_glfw.h" />
@@ -173,6 +174,7 @@
     <ClInclude Include="headers\imgui\imstb_truetype.h" />
     <ClInclude Include="headers\FileController.h" />
     <ClInclude Include="headers\Components.h" />
+    <ClInclude Include="headers\Metadata.h" />
     <ClInclude Include="headers\RenderUI.h" />
     <ClInclude Include="Libraries\include\glad\glad.h" />
     <ClInclude Include="Libraries\include\GLFW\glfw3.h" />

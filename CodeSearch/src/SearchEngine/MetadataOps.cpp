@@ -1,6 +1,5 @@
 #include "MetadataOps.h"
 
-std::vector<std::string> MetadataOps::FilterCodeFiles(std::vector<std::string>)
+void MetadataOps::StoreFileMetaData()
 {
-	return std::vector<std::string>();
 }

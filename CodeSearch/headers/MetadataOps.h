@@ -7,5 +7,5 @@
 class MetadataOps 
 {
 	public:
-		std::vector<std::string> FilterCodeFiles(std::vector<std::string> inp);
+		void StoreFileMetaData();
 };

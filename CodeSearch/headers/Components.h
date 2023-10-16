@@ -26,7 +26,7 @@ public:
 class OutputWindowComponent:ComponentManager {
 public:
 	static OutputWindowComponent* GetInstance();
-	void UpdateOutputBuffer(ImGuiTextBuffer& obuff);
+	void UpdateOutputBuffer(ImGuiTextBuffer* obuff);
 	void OutputWindowUICompoent(int c_window_width, int c_window_height);
 	OutputWindowComponent(const OutputWindowComponent& obj) = delete;
 private:

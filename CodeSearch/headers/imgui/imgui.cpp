@@ -2687,7 +2687,11 @@ void ImGuiTextBuffer::append(const char* str, const char* str_end)
 
     Buf.resize(needed_sz);
     memcpy(&Buf[write_off - 1], str, (size_t)len);
-    Buf[write_off - 1 + len] = 0;
+    int access_val = write_off - 1 + len;
+    // [FIX] No try catch provided by imgui. Temporarily solves the issue of accessing memory out of bounds.
+    if (access_val <= needed_sz) {
+        Buf[write_off - 1 + len] = 0;
+    }
 }
 
 void ImGuiTextBuffer::appendf(const char* fmt, ...)
