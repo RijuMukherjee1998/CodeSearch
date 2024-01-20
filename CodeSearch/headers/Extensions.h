@@ -17,3 +17,12 @@ enum Extensions
 	rs,
 	ts,
 };
+
+enum TokenType 
+{
+	unknown = 0,
+	CLASS,
+	STRUCT,
+	ENUM,
+	FUNCTION
+};

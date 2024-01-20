@@ -1,3 +1,4 @@
+
 #include "FileController.h"
 
 
@@ -61,6 +62,72 @@ std::vector <FileMetadata> FileController::FilterOutCodeFiles(std::vector<std::s
 		}		
 	}
 	return filteredFiles;
+}
+
+void FileController::SerializeFileMetaData(FileMetadata* fmd)
+{
+	MetadataOps mdops;
+	std::vector<TokenMetadata>* tokens = new std::vector<TokenMetadata>();
+	mdops.GetFileMetaData(fmd, tokens);
+	std::filesystem::path currentPath = std::filesystem::current_path();
+
+	std::ofstream c_ofstream(currentPath.append("\\data\\class.jrn"), std::ios::binary);
+	std::ofstream s_ofstream(currentPath.append("\\data\\struct.jrn"), std::ios::binary);
+	std::ofstream e_ofstream(currentPath.append("\\data\\enum.jrn"), std::ios::binary);
+	std::ofstream f_ofstream(currentPath.append("\\data\\function.jrn"), std::ios::binary);
+	if (tokens != NULL)
+	{
+		for (int i = 0; i < tokens->size(); i++)
+		{
+			if (tokens->at(i).ttype == TokenType::CLASS)
+			{
+				std::cout<< "CLASS" << std::endl;
+				std::cout << tokens->at(i).tokenName << std::endl;
+				std::cout << tokens->at(i).token_line_no << std::endl;
+				std::cout << tokens->at(i).fmd.filepath << std::endl;
+				Serialize_TokenMetaData(c_ofstream, tokens->at(i));
+			}
+			else if (tokens->at(i).ttype == TokenType::STRUCT)
+			{
+				std::cout << "STRUCT" << std::endl;
+				std::cout << tokens->at(i).tokenName << std::endl;
+				std::cout << tokens->at(i).token_line_no << std::endl;
+				std::cout << tokens->at(i).fmd.filepath << std::endl;
+				Serialize_TokenMetaData(s_ofstream, tokens->at(i));
+			}
+			else if (tokens->at(i).ttype == TokenType::ENUM)
+			{
+				std::cout << "ENUM" << std::endl;
+				std::cout << tokens->at(i).tokenName << std::endl;
+				std::cout << tokens->at(i).token_line_no << std::endl;
+				std::cout << tokens->at(i).fmd.filepath << std::endl;
+				Serialize_TokenMetaData(e_ofstream, tokens->at(i));
+			}
+			else if (tokens->at(i).ttype == TokenType::FUNCTION)
+			{
+				std::cout << "FUNCTION" << std::endl;
+				std::cout << tokens->at(i).tokenName << std::endl;
+				std::cout << tokens->at(i).token_line_no << std::endl;
+				std::cout << tokens->at(i).fmd.filepath << std::endl;
+				Serialize_TokenMetaData(f_ofstream, tokens->at(i));
+			}
+		}
+	}
+	else
+	{
+		std::cout << "Token Meta Data is null";
+	}
+}
+void FileController::Serialize_TokenMetaData(std::ofstream& ofs, TokenMetadata& tmd)
+{
+	ofs.write(reinterpret_cast<const char*>(&tmd.ttype), sizeof(tmd.ttype));
+	
+	size_t tokenNameSize = tmd.tokenName.size();
+	ofs.write(reinterpret_cast<const char*>(&tokenNameSize), sizeof(tokenNameSize));
+	ofs.write(tmd.tokenName.c_str(), tokenNameSize);
+
+	ofs.write(reinterpret_cast<const char*>(&tmd.token_line_no), sizeof(tmd.token_line_no));
+	ofs.write(reinterpret_cast<const char*>(&tmd.fmd), sizeof(tmd.fmd));
 }
 
 Extensions FileController::StringsToEnum(std::string& str)

@@ -5,7 +5,7 @@ void OutputWindowComponent::UpdateOutputBuffer(ImGuiTextBuffer* out_buff) {
 	{
 		if (out_buff != NULL && !out_buff->empty()) {
 			outputBuffer.clear();
-			std::cout << "OutBuff" << out_buff->size() <<std::endl;
+			//std::cout << "OutBuff" << out_buff->size() <<std::endl;
 			outputBuffer.append(out_buff->begin(), out_buff->end());
 		}
 	}
@@ -79,7 +79,11 @@ static void Init(char* repo_path, ImGuiTextBuffer* out_buff, bool& done) {
 
 	std::cout << "Total No of files = "<< allFiles.size() << std::endl;
 	std::cout << "Total No of Filtered Files = "<< filteredFiles.size() << std::endl;
-
+	
+	for (int i = 0; i < filteredFiles.size(); i++)
+	{
+		fc.SerializeFileMetaData(&filteredFiles.at(i));
+	}
 	done = true;
 }
 

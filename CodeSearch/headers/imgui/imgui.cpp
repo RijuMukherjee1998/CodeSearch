@@ -928,7 +928,7 @@ CODE
 //-------------------------------------------------------------------------
 // [SECTION] INCLUDES
 //-------------------------------------------------------------------------
-
+#include <exception>
 #if defined(_MSC_VER) && !defined(_CRT_SECURE_NO_WARNINGS)
 #define _CRT_SECURE_NO_WARNINGS
 #endif
@@ -2675,7 +2675,7 @@ char ImGuiTextBuffer::EmptyString[1] = { 0 };
 void ImGuiTextBuffer::append(const char* str, const char* str_end)
 {
     int len = str_end ? (int)(str_end - str) : (int)strlen(str);
-
+    
     // Add zero-terminator the first time
     const int write_off = (Buf.Size != 0) ? Buf.Size : 1;
     const int needed_sz = write_off + len;
@@ -2684,14 +2684,10 @@ void ImGuiTextBuffer::append(const char* str, const char* str_end)
         int new_capacity = Buf.Capacity * 2;
         Buf.reserve(needed_sz > new_capacity ? needed_sz : new_capacity);
     }
-
+    
     Buf.resize(needed_sz);
     memcpy(&Buf[write_off - 1], str, (size_t)len);
-    int access_val = write_off - 1 + len;
-    // [FIX] No try catch provided by imgui. Temporarily solves the issue of accessing memory out of bounds.
-    if (access_val <= needed_sz) {
-        Buf[write_off - 1 + len] = 0;
-    }
+    Buf[write_off - 1 + len] = 0;
 }
 
 void ImGuiTextBuffer::appendf(const char* fmt, ...)
