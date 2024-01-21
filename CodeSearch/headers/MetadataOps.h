@@ -13,6 +13,6 @@ class MetadataOps
 		void GetFileMetaData(FileMetadata* fmd, std::vector<TokenMetadata>* tokens);
 		void ReadFilesIntoBuffer(std::filesystem::path& path, std::vector<std::string>* fbuffer);
 	private:
-		void PatternEntry(std::regex& pattern, std::vector<std::string> *patternName, std::string& line);
-		void LineTokenizer(std::string& line, std::vector<std::string> *classNames, std::vector<std::string> *structNames, std::vector<std::string> *enumNames, std::vector<std::string> *functionNames);
+		void PatternEntry(std::regex& pattern, std::string* code, std::vector<TokenMetadata>* tokens, const std::string& patternName, FileMetadata* filemd);
+		void CodeTokenizer(std::string* code, std::vector<TokenMetadata>* tokens, FileMetadata* filemd);
 };

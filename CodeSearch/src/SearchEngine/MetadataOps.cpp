@@ -5,52 +5,15 @@ void MetadataOps::GetFileMetaData(FileMetadata* filemd, std::vector<TokenMetadat
 {
     std::vector <std::string> *fileBuffer = new std::vector<std::string>();
 	ReadFilesIntoBuffer(filemd->filepath, fileBuffer);
-    
-    std::vector<std::string> *classNames = new std::vector<std::string>();
-    std::vector<std::string> *structNames = new std::vector<std::string>();
-    std::vector<std::string> *enumNames = new std::vector<std::string>();
-    std::vector<std::string> *functionNames = new std::vector<std::string>();
 
-    TokenMetadata tmd ;
     size_t no_of_lines = fileBuffer->size();
+    std::string* code = new std::string();
     std::cout << "No of Lines = " << no_of_lines << std::endl;
-    for (int i = 0; i < no_of_lines; i++) {
-        std::string line = fileBuffer->at(i);
-        std::cout << " line is " << line << std::endl;
-        LineTokenizer(line, classNames, structNames, enumNames, functionNames);
+    for (int i = 0; i < no_of_lines; i++)
+    {
+        code->append(fileBuffer->at(i));
     }
-    for (int i = 0; i < classNames->size(); i++) {
-        tmd.ttype = TokenType::CLASS;
-        tmd.tokenName = classNames->at(i);
-        tmd.token_line_no = i;
-        tmd.fmd = *filemd;
-        tokens->emplace_back(tmd);
-    }
-    for (int i = 0; i < structNames->size(); i++) {
-        tmd.ttype = TokenType::STRUCT;
-        tmd.tokenName = structNames->at(i);
-        tmd.token_line_no = i;
-        tmd.fmd = *filemd;
-        tokens->emplace_back(tmd);
-    }
-    for (int i = 0; i < enumNames->size(); i++) {
-        tmd.ttype = TokenType::ENUM;
-        tmd.tokenName = enumNames->at(i);
-        tmd.token_line_no = i;
-        tmd.fmd = *filemd;
-        tokens->emplace_back(tmd);
-    }
-    for (int i = 0; i < functionNames->size(); i++) {
-        tmd.ttype = TokenType::FUNCTION;
-        tmd.tokenName = functionNames->at(i);
-        tmd.token_line_no = i;
-        tmd.fmd = *filemd;
-        tokens->emplace_back(tmd);
-    }
-    free(classNames);
-    free(structNames);
-    free(enumNames);
-    free(functionNames);
+    CodeTokenizer(code,tokens,filemd);
 }
 
 void MetadataOps::ReadFilesIntoBuffer(std::filesystem::path& fpath, std::vector<std::string>* fileBuffer) {
@@ -81,31 +44,62 @@ void MetadataOps::ReadFilesIntoBuffer(std::filesystem::path& fpath, std::vector<
 
 }
 
-void MetadataOps::LineTokenizer(std::string& line, std::vector<std::string> *classNames, std::vector<std::string> *structNames, std::vector<std::string> *enumNames, std::vector<std::string> *functionNames) {
+void MetadataOps::CodeTokenizer(std::string* code, std::vector<TokenMetadata>* tokens, FileMetadata* filemd) {
     // Define regular expressions for identifying classes, structs, enums, and functions
     std::regex classPattern(R"class(\bclass\s+(\w+)\s*(?:(?::\s*\w+\s*)?[^;{]*\{?)?)class");
     std::regex structPattern("struct\\s+(\\w+)\\s*\\{");
     std::regex enumPattern(R"(\benum\s+(\w+)\s*\{)");
-    std::regex functionPattern(R"(\b(?:\w+\s+)?(\w+)\s*\([^)]*\)\s*\{)");
+    std::regex functionPattern(R"(\b(?:\w+\s+)?(\w+)\s*\([^)]*\)\s*(?:\n|\r\n?)?\{)");
 
     //class pattern matching
-    PatternEntry(classPattern, classNames, line);
+    PatternEntry(classPattern,code,tokens,"class", filemd);
     //struct pattern matching
-    PatternEntry(structPattern, structNames, line);
+    PatternEntry(structPattern,code,tokens,"struct", filemd);
     //struct pattern matching
-    PatternEntry(enumPattern, enumNames, line);
+    PatternEntry(enumPattern,code,tokens,"enum", filemd);
     //function pattern matching
-    PatternEntry(functionPattern, functionNames, line);
+    PatternEntry(functionPattern,code,tokens,"function", filemd);
 }
 
-void MetadataOps::PatternEntry(std::regex& pattern, std::vector<std::string> *patternName, std::string& line)
+void MetadataOps::PatternEntry(std::regex& pattern, std::string *code, std::vector<TokenMetadata>* tokens, const std::string& patternName, FileMetadata* filemd)
 {
-    std::sregex_iterator iter(line.begin(), line.end(), pattern);
+    std::sregex_iterator iter(code->begin(), code->end(), pattern);
     std::sregex_iterator end;
+    TokenMetadata tmd;
     while (iter != end) {
         std::smatch match = *iter;
         std::cout << match.str() << std::endl;
-        patternName->emplace_back(match.str());
-        ++iter;
+        if (patternName == "class") {
+            tmd.ttype = TokenType::CLASS;
+            tmd.tokenName = match[1].str();
+            tmd.token_line_no = 1;
+            tmd.fmd = *filemd;
+            tokens->emplace_back(tmd);
+            ++iter;
+        }
+        else if (patternName == "struct") {
+            tmd.ttype = TokenType::STRUCT;
+            tmd.tokenName = match[1].str();
+            tmd.token_line_no = 1;
+            tmd.fmd = *filemd;
+            tokens->emplace_back(tmd);
+            ++iter;
+        }
+        else if (patternName == "enum") {
+            tmd.ttype = TokenType::ENUM;
+            tmd.tokenName = match[1].str();
+            tmd.token_line_no = 1;
+            tmd.fmd = *filemd;
+            tokens->emplace_back(tmd);
+            ++iter;
+        }
+        else if (patternName == "function") {
+            tmd.ttype = TokenType::FUNCTION;
+            tmd.tokenName = match[1].str();
+            tmd.token_line_no = 1;
+            tmd.fmd = *filemd;
+            tokens->emplace_back(tmd);
+            ++iter;
+        }
     }
 }
